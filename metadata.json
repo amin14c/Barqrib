@@ -1,0 +1,8 @@
+{
+  "name": "BarQrib",
+  "description": "Algerian licensed liquor stores and bars directory app.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}

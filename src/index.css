@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Poppins', 'Cairo', ui-sans-serif, system-ui, sans-serif;
+  --font-arabic: 'Cairo', ui-sans-serif, system-ui, sans-serif;
+  --color-primary: #8B5CF6;
+  --color-primary-hover: #7C3AED;
+  --color-background: #0A0A0A;
+  --color-surface: #171717;
+  --radius-xl: 16px;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-white font-sans;
+  }
+}

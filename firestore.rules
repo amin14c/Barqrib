@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() { return request.auth != null; }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isOwner(uid) { return isSignedIn() && request.auth.uid == uid; }
+    function isValidStringLength(str, max) { return str is string && str.size() <= max; }
+    
+    function isValidId(id) { 
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'createdAt'])
+             && data.uid == request.auth.uid
+             && isValidStringLength(data.email, 100)
+             && (!('displayName' in data) || isValidStringLength(data.displayName, 100));
+    }
+
+    function isValidPlace(data) {
+      return data.keys().hasAll(['name', 'type', 'lat', 'lng', 'createdBy', 'createdAt', 'status'])
+             && isValidStringLength(data.name, 100)
+             && (data.type in ['bar', 'cafe', 'lounge', 'store'])
+             && data.lat is number && data.lng is number
+             && data.createdBy == request.auth.uid
+             && data.status in ['pending', 'approved', 'rejected']
+             && (!('address' in data) || isValidStringLength(data.address, 200))
+             && (!('services' in data) || data.services is list && data.services.size() <= 10)
+             && (!('openingHours' in data) || isValidStringLength(data.openingHours, 100))
+             && (!('imageUrl' in data) || isValidStringLength(data.imageUrl, 1000))
+             && (!('averageRating' in data) || data.averageRating is number)
+             && (!('ratingCount' in data) || data.ratingCount is number);
+    }
+
+    function isValidReview(data) {
+      return data.keys().hasAll(['placeId', 'userId', 'userName', 'rating', 'createdAt'])
+             && isValidStringLength(data.placeId, 100)
+             && data.userId == request.auth.uid
+             && isValidStringLength(data.userName, 100)
+             && data.rating is number && data.rating >= 1 && data.rating <= 5
+             && (!('comment' in data) || isValidStringLength(data.comment, 500));
+    }
+
+    match /users/{userId} {
+      allow get: if isValidId(userId); 
+      allow list: if false;
+      allow create: if isSignedIn() && isOwner(userId) && isValidUser(incoming());
+      allow update: if isSignedIn() && isOwner(userId)
+                    && incoming().diff(existing()).affectedKeys().hasOnly(['displayName'])
+                    && isValidStringLength(incoming().displayName, 100);
+    }
+
+    match /places/{placeId} {
+      allow get: if isValidId(placeId);
+      allow list: if (resource.data.status == 'approved') || (isSignedIn() && resource.data.createdBy == request.auth.uid);
+      allow create: if isSignedIn() && isValidId(placeId) && isValidPlace(incoming());
+      allow update: if isSignedIn() && isValidId(placeId)
+                    && (
+                      (incoming().diff(existing()).affectedKeys().hasOnly(['averageRating', 'ratingCount'])
+                       && incoming().averageRating is number 
+                       && incoming().ratingCount is number)
+                      || (incoming().diff(existing()).affectedKeys().hasOnly(['status']) && isOwner(existing().createdBy) && incoming().status in ['pending', 'approved', 'rejected'])
+                    );
+    }
+
+    match /reviews/{reviewId} {
+      allow get: if isValidId(reviewId);
+      allow list: if true;
+      allow create: if isSignedIn() && isValidId(reviewId) && isValidReview(incoming()) 
+                    && exists(/databases/$(database)/documents/places/$(incoming().placeId));
+    }
+  }
+}
