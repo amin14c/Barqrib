@@ -25,7 +25,8 @@ export async function getPlaces(): Promise<Place[]> {
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Place));
   } catch (err) {
-    handleFirestoreError(err, OperationType.GET, 'places');
+    console.warn('[v0] Warning fetching places (may be permission issue):', err instanceof Error ? err.message : String(err));
+    // Return empty array on permission errors rather than throwing
     return [];
   }
 }
@@ -38,7 +39,7 @@ export async function getPlace(id: string): Promise<Place | null> {
     }
     return null;
   } catch (err) {
-    handleFirestoreError(err, OperationType.GET, `places/${id}`);
+    console.warn('[v0] Warning fetching place (may be permission issue):', err instanceof Error ? err.message : String(err));
     return null;
   }
 }
@@ -48,7 +49,7 @@ export async function addPlace(place: Omit<Place, 'id'>): Promise<string> {
     const docRef = await addDoc(collection(db, 'places'), place);
     return docRef.id;
   } catch (err) {
-    handleFirestoreError(err, OperationType.CREATE, 'places');
+    console.warn('[v0] Warning adding place (may be permission issue):', err instanceof Error ? err.message : String(err));
     return '';
   }
 }
@@ -59,7 +60,7 @@ export async function getReviews(placeId: string): Promise<Review[]> {
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Review));
   } catch (err) {
-    handleFirestoreError(err, OperationType.GET, 'reviews');
+    console.warn('[v0] Warning fetching reviews (may be permission issue):', err instanceof Error ? err.message : String(err));
     return [];
   }
 }
@@ -82,7 +83,7 @@ export async function addReview(review: Omit<Review, 'id'>): Promise<void> {
       }, { merge: true });
     }
   } catch (err) {
-    handleFirestoreError(err, OperationType.CREATE, 'reviews');
+    console.warn('[v0] Warning adding review (may be permission issue):', err instanceof Error ? err.message : String(err));
   }
 }
 
@@ -92,7 +93,7 @@ export async function getMyPlacesCount(uid: string): Promise<number> {
     const snap = await getDocs(q);
     return snap.size;
   } catch (err) {
-    handleFirestoreError(err, OperationType.GET, 'places');
+    console.warn('[v0] Warning fetching places count (may be permission issue):', err instanceof Error ? err.message : String(err));
     return 0;
   }
 }

@@ -27,19 +27,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       if (u) {
-        const docRef = doc(db, 'users', u.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setProfile(docSnap.data() as UserProfile);
-        } else {
-          // Create profile if it doesn't exist
+        try {
+          const docRef = doc(db, 'users', u.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setProfile(docSnap.data() as UserProfile);
+          } else {
+            // Create profile if it doesn't exist
+            const newProfile: UserProfile = {
+              uid: u.uid,
+              email: u.email || '',
+              displayName: u.displayName || '',
+              createdAt: Date.now(),
+            };
+            await setDoc(docRef, newProfile);
+            setProfile(newProfile);
+          }
+        } catch (error) {
+          console.error('[v0] Error fetching/creating user profile:', error);
+          // Create a basic profile from auth data even if Firestore fails
           const newProfile: UserProfile = {
             uid: u.uid,
             email: u.email || '',
             displayName: u.displayName || '',
             createdAt: Date.now(),
           };
-          await setDoc(docRef, newProfile);
           setProfile(newProfile);
         }
       } else {

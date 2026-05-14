@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { useTranslation } from '../../core/i18n';
 import { getPlaces } from '../../data/db';
 import { Place } from '../../data/models';
-import authImage from 'lucide-react'; // not correct, wait, image.
 
 export function HomeScreen() {
   const [, setLocation] = useLocation();
