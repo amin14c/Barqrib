@@ -9,6 +9,8 @@ import { MapScreen } from './presentation/components/MapScreen';
 import { AddBarScreen } from './presentation/components/AddBarScreen';
 import { ProfileScreen } from './presentation/components/ProfileScreen';
 import { DetailScreen } from './presentation/components/DetailScreen';
+import { PrivacyPolicyScreen } from './presentation/components/PrivacyPolicyScreen';
+import { TermsOfServiceScreen } from './presentation/components/TermsOfServiceScreen';
 import { useAuth } from './data/auth';
 import { useEffect } from 'react';
 
@@ -34,6 +36,8 @@ function Routes() {
         <Route path="/" component={SplashScreen} />
         <Route path="/login" component={LoginScreen} />
         <Route path="/register" component={RegisterScreen} />
+        <Route path="/privacy" component={PrivacyPolicyScreen} />
+        <Route path="/terms" component={TermsOfServiceScreen} />
         <Route path="/home">
            <ProtectedRoute component={HomeScreen} path="/home" />
         </Route>

@@ -64,6 +64,10 @@ export function RegisterScreen() {
             {t('auth.submit')}
           </button>
 
+          <p className="text-center text-xs text-gray-400 mt-4">
+            بالتسجيل فإنك توافق على <button type="button" onClick={() => setLocation('/terms')} className="text-primary hover:underline">شروط الاستخدام</button> و<button type="button" onClick={() => setLocation('/privacy')} className="text-primary hover:underline">سياسة الخصوصية</button>
+          </p>
+
           <p className="text-center text-sm text-gray-400 mt-6">
             {t('auth.hasAccount')} <button type="button" onClick={() => setLocation('/login')} className="text-primary hover:underline">{t('auth.login')}</button>
           </p>

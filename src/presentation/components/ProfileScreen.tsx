@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../data/auth';
 import { useTranslation, Language } from '../../core/i18n';
+import { useLocation } from 'wouter';
 import { getMyPlacesCount } from '../../data/db';
-import { LogOut, Globe, User, MapPin } from 'lucide-react';
+import { LogOut, Globe, User, MapPin, FileText } from 'lucide-react';
 
 export function ProfileScreen() {
   const { user, profile, logout } = useAuth();
   const { t, lang, changeLanguage } = useTranslation();
+  const [, setLocation] = useLocation();
   const [placesCount, setPlacesCount] = useState(0);
 
   useEffect(() => {
@@ -60,6 +62,22 @@ export function ProfileScreen() {
             <option value="en">English</option>
           </select>
         </div>
+
+        <button 
+          onClick={() => setLocation('/terms')}
+          className="w-full p-4 flex items-center gap-3 text-text hover:bg-background/50 transition-colors text-left border-b border-gray-800"
+        >
+          <FileText className="text-primary" />
+          <span className="font-medium">شروط الاستخدام</span>
+        </button>
+
+        <button 
+          onClick={() => setLocation('/privacy')}
+          className="w-full p-4 flex items-center gap-3 text-text hover:bg-background/50 transition-colors text-left border-b border-gray-800"
+        >
+          <FileText className="text-primary" />
+          <span className="font-medium">سياسة الخصوصية</span>
+        </button>
         
         <button 
           onClick={logout}
